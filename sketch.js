@@ -1,8 +1,161 @@
+//import {gameStateObject} from './importantClasses';
+
+let playerTextInput;
+let playerSubmitButton;
+let submittedInput;
+
+const storyData ={
+
+    textCommandLog: [],
+    
+    commandLineText: [],
+}
 
 const optObj = {
-    frameRate: 30,
+    frameRate: 10,
+    canvasWidth: 1900,
+    canvasHeight: 1000
     
 }
+
+
+const gameStateObject = {
+    currentScene: 0,
+    gameOver: false,
+    startingRoom: 0,
+    currentRoomID: 0,
+    storyData : {},
+    deathCounter: 0,
+    seed: 999,
+    currentZone: "A",
+    zoneFlags:{
+        zombiesSummoned: false,
+        dragonAwake: false,
+    },
+
+}
+
+function loadDescriptionText(object, id){
+    
+    object[id]["descriptionText"].forEach(element => {
+        storyData.commandLineText.push(element);   
+    });
+
+}
+
+function loadStartMenu(){
+    console.log("loadStartMenu Ran");
+    removeElements();
+    gameStateObject.currentScene = 0;
+    let newGameButton = createButton('New Game');
+    newGameButton.position((optObj.canvasWidth/2), optObj.canvasHeight/2 );
+    newGameButton.mousePressed(startGame);
+    noloop();
+
+    
+
+}
+
+
+
+function startGame(){
+    
+    gameStateObject.currentScene = 1;
+    createUI1();
+    loadDescriptionText(hardCodedRoomData, 0)
+}
+
+
+
+function submitTextInput(){
+    submittedInput = playerTextInput.value();
+    console.log(playerTextInput.value());
+    playerTextInput.value("");
+    storyData.textCommandLog.push(submittedInput);
+    storyData.commandLineText.push(submittedInput);
+    //console.log(storyData.textCommandLog);
+
+}
+
+function createUI1(){
+    //Clears the sketch of created elements
+    removeElements();
+    console.log("Create UI1 ran");
+    playerTextInput = createInput('');
+
+    playerTextInput.size(optObj.canvasWidth/2);
+    playerTextInput.position(0, optObj.canvasHeight-playerTextInput.height);
+    //console.log(playerTextInput.width, playerTextInput.height);
+
+    playerSubmitButton = createButton('Enter');
+    playerSubmitButton.position((optObj.canvasWidth/2)+1, optObj.canvasHeight- playerSubmitButton.height );
+    playerSubmitButton.mousePressed(submitTextInput);
+}
+
+function triggerGameOver(){
+    gameStateObject.gameOver = true;
+}
+
+function gameOverScreen(){
+
+}
+
+
+// Test data for testing functionality of engine
+// All sizes are in meters
+const hardCodedRoomData = {
+    0: {
+        roomShape: "square",
+        roomPerimeter: [4,4,4,4],
+        descriptionText: ["You awake in a cave.", 
+                        "You can see an exit to the north.", 
+                        "There is a bottle filled with a green glowing liquid on the ground in front of you.", 
+                        "What do you do?"],
+        roomItems: {
+                    "health-potion":{
+                        description: "It looks like a potion that you should drink when you are hurt or dying.",
+
+                        },
+                    },
+        hiddenRoomItems: null,
+
+        exits: [{"north":1},],
+        hiddenExits: null,
+        
+        },
+    1: {
+        roomShape: "square",
+        roomPerimeter: [4,4,4,4],
+        descriptionText: ["It's a room.", "There is a door to the north and the south.", "What do you do?"],
+        enterRoomTriggers: null,
+        roomItems: {
+                    "rock":{
+                        description: "It's a small rock weighing about 0.5kgs, you can throw it stuff.",
+
+                        },
+                    },
+        hiddenRoomItems: null,
+
+        exits: [{"north":2},{"south":0}],
+        hiddenExits: null,
+
+    },
+    2: {
+        roomShape: "square",
+        roomPerimeter: [4,4,4,4],
+        descriptionText: ["You win the game, congrats adventurer"],
+        enterRoomTriggers: triggerGameOver(),
+        roomItems: null,
+        hiddenRoomItems: null,
+
+        exits: [{south: 1}],
+        hiddenExits: null,
+
+    }
+}
+
+
+
 
 
 class SummoningCircle{
@@ -126,39 +279,67 @@ class SummoningCircle{
 let glyphSettings = {
     x: 600,
     y: 600,
-   sl: 600
+   sl: 300
 }
 
 let shape = new SummoningCircle(glyphSettings);
 
+// cool beans 
+ // if(mouseIsPressed){
+    //     shape.updateCoordinates({x: mouseX, y: mouseY, sl: 300});
+    //     console.log("redrew shape");
+    // }
+
+    // shape.show()    
+function showLastTwentyLines(){
+    let last20 = 20;
+    for (let i = storyData.commandLineText.length-1; i > -1 && i > storyData.commandLineText.length - 21; i--){
+       text(storyData.commandLineText[i], 10, (20* last20)+500 );
+       last20--; 
+    }
+}
+
+function sceneOne(){
+    showLastTwentyLines()
+
+}
+     
+function runScene(){
+    
+
+    // switch(gameStateObject.currentScene){
+    //     case 0:
+    //         loadStartMenu();
+        
+    //         break;
+    //     case 1:
+    //         sceneOne();
+    //         break;    
+    // };
+
+    const runSceneObject ={
+        0: loadStartMenu(),
+        1: sceneOne(),
+    }
+
+    runSceneObject[gameStateObject.currentScene];
+
+}
 
 
 function setup(){
 
-    createCanvas(2400 , 2000);
+    createCanvas(optObj.canvasWidth , optObj.canvasHeight);
     background(255);
     frameRate(optObj.frameRate)
+   
+
 
 }
 
 function draw(){
      background(255);
+        runScene();
 
-    // if (mouseIsPressed) {
-    //     fill(100,100,100);
-    //     ellipse(mouseX, mouseY, 80, 80);
-    //   }
-    
-
-    let obj = {
-        x: mouseX,
-        y: mouseY,
-        sl: 300
-    }
-if(mouseIsPressed){
-    shape.updateCoordinates(obj)
-    console.log("redrew shape");
-}
-    shape.show()    
-     
+   
 }

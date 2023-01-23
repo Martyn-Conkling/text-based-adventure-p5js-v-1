@@ -13,27 +13,7 @@ class Story{
     }
 }
 
-class SummoningCircle{
-    constructor(sO){
-        this.x = sO.x;
-        this.y = sO.y;
-        this.width = sO.width;
-        this.height = sO.height ;
-    }
-    show(){
-      line(this.x,this.y, this.x + this.width, this.y +this.height)
-        
-    }
-}
 
-let glyphSettings = {
-    x: 50,
-    y: 50,
-    width: 120,
-    height: 120
-}
-
-let shape = new SummoningCircle(glyphSettings);
 
 
 // Major things I need
@@ -46,16 +26,77 @@ let shape = new SummoningCircle(glyphSettings);
 
 //
 
-
-this.coordPoints = {
-    x1: this.x,
-    y1: this.y - this.sl,
-    x2: this.x + Math.sqrt(this.sl**2 - (this.halfSL)**2),
-    y2: this.y - this.halfSL,
-    x3: this.x + Math.sqrt(this.sl**2 - (this.halfSL)**2),
-    y3: this.y + this.halfSL,
-    x4: this.x,
-    y4: this.y + this.sl,
-    
+const gameStateObject = {
+    gameOver: false,
+    startingRoom: 0,
+    currentRoomID: 0,
+    storyData : {},
+    deathCounter: 0,
+    seed: 999,
+    currentZone: "A",
+    zoneFlags:{
+        zombiesSummoned: false,
+        dragonAwake: false,
+    }
 
 }
+
+function triggerGameOver(){
+    gameStateObject.gameOver = true;
+}
+
+
+// Test data for testing functionality of engine
+// All sizes are in meters
+const hardCodedRoomData = {
+    0: {
+        roomShape: "square",
+        roomPerimeter: [4,4,4,4],
+        descriptionText: ["You awake in a cave.", 
+                        "You can see an exit to the north.", 
+                        "There is a bottle filled with a green glowing liquid on the ground in front of you.", 
+                        "What do you do?"],
+        roomItems: {
+                    "health-potion":{
+                        description: "It looks like a potion that you should drink when you are hurt or dying.",
+
+                        },
+                    },
+        hiddenRoomItems: null,
+
+        exits: [{"north":1},],
+        hiddenExits: null,
+        
+        },
+    1: {
+        roomShape: "square",
+        roomPerimeter: [4,4,4,4],
+        descriptionText: ["It's a room.", "There is a door to the north and the south.", "What do you do?"],
+        enterRoomTriggers: null,
+        roomItems: {
+                    "rock":{
+                        description: "It's a small rock weighing about 0.5kgs, you can throw it stuff.",
+
+                        },
+                    },
+        hiddenRoomItems: null,
+
+        exits: [{"north":2},{"south":0}],
+        hiddenExits: null,
+
+    },
+    2: {
+        roomShape: "square",
+        roomPerimeter: [4,4,4,4],
+        descriptionText: ["You win the game, congrats adventurer"],
+        enterRoomTriggers: triggerGameOver(),
+        roomItems: null,
+        hiddenRoomItems: null,
+
+        exits: [{south: 1}],
+        hiddenExits: null,
+
+    }
+}
+
+
