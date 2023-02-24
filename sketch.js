@@ -4,36 +4,72 @@ let playerTextInput;
 let playerSubmitButton;
 let submittedInput;
 
-const storyData ={
+const storyData = {
 
     textCommandLog: [],
-    
     commandLineText: [],
 }
 
-const optObj = {
-    frameRate: 10,
-    canvasWidth: 1900,
-    canvasHeight: 1000
+
+
+class GameEngine{
+    constructor(){
+        this.gameStateObject = {
+            currentScene: 0,
+            gameOver: false,
+            startingRoom: 0,
+            currentRoomID: 0,
+            storyData : {},
+            deathCounter: 0,
+            seed: 999,
+            currentZone: "A",
+            zoneFlags:{
+                zombiesSummoned: false,
+                dragonAwake: false,
+            },
+        
+        }
+
+        this.optObj = {
+            frameRate: 10,
+            canvasWidth: 1900,
+            canvasHeight: 800
+            
+        };
+        
+    }
+    runScene(){
+
+        switch(this.gameStateObject.currentScene){
+            case 0:
+                this.loadStartMenu()
+                break;
+            case 1:  
+                sceneOne()
+                break;
+
+        }
+
+    }
+
+    loadStartMenu(){
+        console.log("loadStartMenu Ran");
+        removeElements();
+        this.gameStateObject.currentScene = 0;
+        let newGameButton = createButton('New Game');
+        newGameButton.position((this.optObj.canvasWidth/2), this.optObj.canvasHeight/2 );
+        newGameButton.mouseClicked(startGame);
+        noLoop()
+        
+        
     
-}
+    }
 
-
-const gameStateObject = {
-    currentScene: 0,
-    gameOver: false,
-    startingRoom: 0,
-    currentRoomID: 0,
-    storyData : {},
-    deathCounter: 0,
-    seed: 999,
-    currentZone: "A",
-    zoneFlags:{
-        zombiesSummoned: false,
-        dragonAwake: false,
-    },
+    
 
 }
+
+
 
 function loadDescriptionText(object, id){
     
@@ -43,27 +79,35 @@ function loadDescriptionText(object, id){
 
 }
 
-function loadStartMenu(){
-    console.log("loadStartMenu Ran");
-    removeElements();
-    gameStateObject.currentScene = 0;
-    let newGameButton = createButton('New Game');
-    newGameButton.position((optObj.canvasWidth/2), optObj.canvasHeight/2 );
-    newGameButton.mousePressed(startGame);
-    noloop();
 
+let gameInstance = new GameEngine();
+
+// function loadStartMenu(){
+//     console.log("loadStartMenu Ran");
+//     removeElements();
+//     gameStateObject.currentScene = 0;
+//     let newGameButton = createButton('New Game');
+//     newGameButton.position((optObj.canvasWidth/2), optObj.canvasHeight/2 );
+//     newGameButton.mouseClicked(startGame);
+//     noLoop()
+    
     
 
-}
+// }
 
 
 
-function startGame(){
-    
-    gameStateObject.currentScene = 1;
-    createUI1();
-    loadDescriptionText(hardCodedRoomData, 0)
-}
+//  function  startGame(){
+//     console.log("Start Game Ran");
+//     gameStateObject["currentScene"] = 1;
+//     gameStateObject["currentScene"] = 1;
+//     console.log("in Start Game currentScene is :", gameStateObject.currentScene);
+//     createUI1();
+//     console.log("createUI1() ran")
+//     loadDescriptionText(hardCodedRoomData, 0)
+//     redraw()
+// }
+
 
 
 
@@ -80,20 +124,33 @@ function submitTextInput(){
 function createUI1(){
     //Clears the sketch of created elements
     removeElements();
+    console.log("removeElements ran")
     console.log("Create UI1 ran");
     playerTextInput = createInput('');
 
-    playerTextInput.size(optObj.canvasWidth/2);
-    playerTextInput.position(0, optObj.canvasHeight-playerTextInput.height);
+    playerTextInput.size(gameInstance.optObj.canvasWidth/2);
+    playerTextInput.position(0, gameInstance.optObj.canvasHeight-playerTextInput.height);
     //console.log(playerTextInput.width, playerTextInput.height);
 
     playerSubmitButton = createButton('Enter');
-    playerSubmitButton.position((optObj.canvasWidth/2)+1, optObj.canvasHeight- playerSubmitButton.height );
-    playerSubmitButton.mousePressed(submitTextInput);
+    playerSubmitButton.position((gameInstance.optObj.canvasWidth/2)+1, gameInstance.optObj.canvasHeight- playerSubmitButton.height );
+    playerSubmitButton.mouseClicked(submitTextInput);
+    
+    console.log("Create UI finished")
+}
+
+function startGame(){
+    console.log("Start Game Ran");
+    gameInstance.gameStateObject.currentScene = 1;
+ 
+    createUI1();
+    console.log("createUI1() ran")
+    loadDescriptionText(hardCodedRoomData, 0)
+    redraw()
 }
 
 function triggerGameOver(){
-    gameStateObject.gameOver = true;
+   gameInstance.gameStateObject.gameOver = true;
 }
 
 function gameOverScreen(){
@@ -144,7 +201,7 @@ const hardCodedRoomData = {
         roomShape: "square",
         roomPerimeter: [4,4,4,4],
         descriptionText: ["You win the game, congrats adventurer"],
-        enterRoomTriggers: triggerGameOver(),
+        //enterRoomTriggers: triggerGameOver(),
         roomItems: null,
         hiddenRoomItems: null,
 
@@ -277,8 +334,8 @@ class SummoningCircle{
 
 
 let glyphSettings = {
-    x: 600,
-    y: 600,
+    x: 300,
+    y: 300,
    sl: 300
 }
 
@@ -294,52 +351,38 @@ let shape = new SummoningCircle(glyphSettings);
 function showLastTwentyLines(){
     let last20 = 20;
     for (let i = storyData.commandLineText.length-1; i > -1 && i > storyData.commandLineText.length - 21; i--){
-       text(storyData.commandLineText[i], 10, (20* last20)+500 );
+       text(storyData.commandLineText[i], 10, (20* last20)+200 );
        last20--; 
     }
 }
 
 function sceneOne(){
     showLastTwentyLines()
+    shape.show();
 
 }
      
-function runScene(){
-    
 
-    // switch(gameStateObject.currentScene){
-    //     case 0:
-    //         loadStartMenu();
-        
-    //         break;
-    //     case 1:
-    //         sceneOne();
-    //         break;    
-    // };
 
-    const runSceneObject ={
-        0: loadStartMenu(),
-        1: sceneOne(),
-    }
-
-    runSceneObject[gameStateObject.currentScene];
-
-}
-
+//In p5.js you need a setup and a draw function
 
 function setup(){
 
-    createCanvas(optObj.canvasWidth , optObj.canvasHeight);
+    createCanvas(gameInstance.optObj.canvasWidth , gameInstance.optObj.canvasHeight);
     background(255);
-    frameRate(optObj.frameRate)
-   
+    frameRate(gameInstance.optObj.frameRate)
+
+    
+
 
 
 }
 
 function draw(){
+    console.log("Draw Ran")
      background(255);
-        runScene();
+    gameInstance.runScene();
+        
 
    
 }
